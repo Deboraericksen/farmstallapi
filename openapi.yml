@@ -251,7 +251,34 @@ paths:
                     maxLength: 36
                     pattern: '[a-zA-Z0-9-]+'
                     example: 3b5b1707-b82c-4b1d-9078-157053902525
- 
+ delete:
+      tags:
+        - Reviews
+      description: Deletes a review
+      security:
+        - {}
+        - MyUserToken: []
+      parameters:
+        - in: path
+          name: reviewId
+          required: true
+          schema:
+            type: string
+            description: The unique identifier of the review
+            minLength: 36
+            maxLength: 36
+            pattern: '[a-zA-Z0-9-]+'
+      responses:
+        '204':
+          description: Review successfully deleted
+          content: 
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Your review was successfully deleted.
   
                    
                    
