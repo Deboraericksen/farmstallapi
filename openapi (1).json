@@ -1,0 +1,372 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "version": "v1",
+    "title": "FarmStall API",
+    "description": "An API for writing reviews about your favourite (or not so much) farm stalls.\n![Picture of produce](https://farmstall.designapis.com/img/produce-banner.jpg)\n---\n\n# Authorization\n\nTo create **Reviews** without being _anonymous_, you need to add a **MyUserToken** to the `Authorization`.\n\nTo get a **MyUserToken**:\n1. Create a **User** with [POST /users](#Users/post_users)\n2. Get a **MyUserToken** by calling [POST /tokens](#Users/post_tokens) with your **User** credentials.\n---\n# Reviews\n\nReviews are the heart of this API.\nRegistered **Users** and anonymous users can both write reviews based on their experience at farm stalls.\n\nEach review comes with a rating between one and five stars inclusive.\n\n- One star being the worst experience\n- Five stars being the best experience\n\n### Example Reviews\n\n\"I had such a wonderful time with my family!\" &mdash; Bob McNally \n<br/>\n![5 stars](https://farmstall.designapis.com/img/rating-5.png)\n\n\"Awful experience, unfortunately\"&mdash; _Anonymous_<br/>\n![1 star](https://farmstall.designapis.com/img/rating-1.png)\n\n\"Just average. I actually expected more.\" \"&mdash; Jane Fair <br/>\n![3 stars](https://farmstall.designapis.com/img/rating-3.png)\n\n---",
+    "contact": {
+      "name": "Debora Ferreira",
+      "email": "fake@example.com",
+      "url": "https://farmstall.designapis.com"
+    },
+    "license": {
+      "url": "https://www.apacge.org/licenses/LICENSE-2.0.html",
+      "name": "Apache 2.0"
+    }
+  },
+  "externalDocs": {
+    "url": "https://farmstall.designapis.com",
+    "description": "Hosted docs"
+  },
+  "servers": [
+    {
+      "url": "https://farmstall.designapis.com/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Users",
+      "description": "Users and authentication"
+    },
+    {
+      "name": "Reviews",
+      "description": "Reviews of your favourite/worst farm stalls"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "MyUserToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization"
+      }
+    }
+  },
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Creates a new user",
+        "requestBody": {
+          "description": "User details",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "ferreira"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "fullName": {
+                    "type": "string",
+                    "example": "Debora Ferreira"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created a new user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "username": {
+                      "type": "string",
+                      "example": "ponelat"
+                    },
+                    "uuid": {
+                      "type": "string",
+                      "example": "f7f680a8-d111-421f-b6b3-493ebf905078"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tokens": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Creates a new token",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "example": "ferreira"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created a new token for gaining access to resources",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reviews": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "description": "Retrieves a list of reviews.",
+        "parameters": [
+          {
+            "name": "maxRating",
+            "description": "Filter the reviews by the maximum rating",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of reviews",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "rating": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "uuid": {
+                        "type": "string",
+                        "pattern": "^[0-9a-fA-F\\-]{36}$"
+                      },
+                      "userId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-fA-F\\-]{36}$",
+                        "nullable": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "description": "Creates a new review",
+        "security": [
+          {},
+          {
+            "MyUserToken": []
+          }
+        ],
+        "requestBody": {
+          "description": "A new review",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rating": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 5,
+                    "example": 5
+                  },
+                  "message": {
+                    "type": "string",
+                    "example": "An awesome time for the whole family!"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "pattern": "^[0-9a-fA-F\\-]{36}$",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created a new review",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Blew my mind!"
+                    },
+                    "rating": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5,
+                      "example": 5
+                    },
+                    "userId": {
+                      "type": "string",
+                      "nullable": true,
+                      "pattern": "^[0-9a-fA-F\\-]{36}$"
+                    },
+                    "uuid": {
+                      "type": "string",
+                      "pattern": "^[0-9a-fA-F\\-]{36}$"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reviews/{reviewId}": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "description": "Retrieve a single review object",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "reviewId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique identifier of the review",
+              "minLength": 36,
+              "maxLength": 36,
+              "pattern": "[a-zA-Z0-9-]+"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single review",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "3b5b1707-b82c-4b1d-9078-157053902525"
+                    },
+                    "rating": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 5,
+                      "example": 5
+                    },
+                    "userId": {
+                      "minLength": 36,
+                      "maxLength": 36,
+                      "pattern": "[a-zA-Z0-9-]+",
+                      "nullable": true,
+                      "example": "3b5b1707-b82c-4b1d-9078-157053902525"
+                    },
+                    "uuid": {
+                      "minLength": 36,
+                      "maxLength": 36,
+                      "pattern": "[a-zA-Z0-9-]+",
+                      "example": "3b5b1707-b82c-4b1d-9078-157053902525"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Reviews"
+        ],
+        "description": "Deletes a review",
+        "security": [
+          {},
+          {
+            "MyUserToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "reviewId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The unique identifier of the review",
+              "minLength": 36,
+              "maxLength": 36,
+              "pattern": "[a-zA-Z0-9-]+"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Review succesfully deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Your review was successfully deleted."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
