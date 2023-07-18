@@ -251,7 +251,7 @@ paths:
                     maxLength: 36
                     pattern: '[a-zA-Z0-9-]+'
                     example: 3b5b1707-b82c-4b1d-9078-157053902525
- delete:
+    delete:
       tags:
         - Reviews
       description: Deletes a review
